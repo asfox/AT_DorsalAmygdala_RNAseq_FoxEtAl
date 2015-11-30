@@ -6,7 +6,7 @@ This is a first attempt at creating a flask server that will help to explore the
 
 I wouldn't suggest thinking about this too much without talking to Drew Fox. 
 
-A working version of this can be found online: [http://at.psychiatry.wisc.edu](http://www.at.psychiatry.wisc.edu)
+A working version of this can be found online: [http://at.psychiatry.wisc.edu](http://at.psychiatry.wisc.edu)
 
 This allows you to explore top hits for particular analyses, e.g. top gene expression associated with freezing at initial assessment during exposure to the no-eye-contact condition of the human intruder paradigm, [here](http://at.psychiatry.wisc.edu/top_genes/Freezing_duration_Time1?n=100&min_exprs=10&sort_col=1&threshold=.005)
 
