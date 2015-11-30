@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<!-- saved from url=(0043)http://getbootstrap.com/examples/dashboard/ -->
+<html lang="en">
+  {% include "header.html" %}
+
+  <body>
+
+    {% include "navbar.html" %}
+
+    <div class="jumbotron">
+      <div class="container">
+        <h1>Top {{ corr_type }}s</h1>
+
+        <h3>List of top {{ n }} {{ corr_type }} correlations from {{ selected_column }} where mean expression is
+             greater than {{ expression_threshold }} quantile normalized reads.</h3>
+        <p>{{ usage }}</p>
+        <p>{{ description }}</p>
+        <!-- THIS IS PROBABLY A GOOD PLACE FOR A LEARN MORE BUTTONp><a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a></p-->
+      </div>
+    </div>
+        <div class="container">
+          <h1 class="page-header">{{ this_title }}</h1>
+
+         {% for e in result_elements %}
+          <a class='none' name="{{ e.title }}"></a>
+          <div name="{{ e.title }}" class="panel panel-default">
+          <div class="panel-heading">
+           <h2 class="sub-header">{{ e.title }}</h2>
+          </div>
+          <div class="panel-body">
+            {{ e.notes }}
+          </div>
+          <div class="table-responsive">
+                {{e.content}} 
+          </div>
+          </div>
+          {% endfor %}
+
+          {% include "footer.html" %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="{{ url_for('static', filename='js/jquery-2.1.4.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/typeahead.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/typeahead.bundle.js') }}"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  var gene_list = new Bloodhound({
+      datumTokenizer: function(d) { 
+          return Bloodhound.tokenizers.whitespace(d.gene); 
+      },
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      //prefetch: 'http://127.0.0.1:5000/json_test.json'
+      {% autoescape false %}
+      local: {{ gene_set_for_search }}
+      {% endautoescape %}
+
+});
+
+gene_list.initialize();
+
+$('.typeahead').typeahead(null, {
+    displayKey: 'gene',
+    highlight: 'true',
+    source: gene_list
+});
+});
+</script>
+
+  
+
+</body></html>

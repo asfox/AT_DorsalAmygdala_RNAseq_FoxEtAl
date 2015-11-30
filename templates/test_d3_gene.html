@@ -1,0 +1,32 @@
+
+<!DOCTYPE html>
+<html>
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="Drew Fox">
+    <!-- NEXT LINE COMMENTED, but could be used to decorate tab -->
+    <!-- link rel="icon" href="http://getbootstrap.com/favicon.ico" -->
+    <link rel="icon" href="http://www.bi.wisc.edu/~fox/images/neuron_icon.ico">
+
+
+    <title>{{ this_title }}</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="http://getbootstrap.com/examples/dashboard/dashboard.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/local.css') }}" rel="stylesheet">
+
+  </head>
+  <body onload='resize()'>
+
+<div id="gene_model_js"> </div>'
+
+{% include "draw_gene_model.html" %}
+</body>
+</html>

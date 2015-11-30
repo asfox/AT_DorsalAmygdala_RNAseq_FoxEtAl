@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<!-- saved from url=(0043)http://getbootstrap.com/examples/dashboard/ -->
+<html lang="en">
+  {% include "header.html" %}
+
+  <body>
+
+    {% include "navbar.html" %}
+
+    <div class="container">
+      <div class="jumbotron">
+        <h1>Kalin-Knowles RNAseq </h1>
+
+        <div class="container">
+          {% include "search_top_list.html" %}
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      {% include "footer.html" %}
+    </div>
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="{{ url_for('static', filename='js/jquery-2.1.4.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+  
+</body></html>

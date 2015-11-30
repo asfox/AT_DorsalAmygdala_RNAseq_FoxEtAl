@@ -1,0 +1,47 @@
+        <form action='search_top' method='get'>
+
+        <div class="container">
+
+        <div class="form-group col-sm-6">
+          <label class="control-label" for="selected_column"><h3>Find top associations with:</h3></label>
+          <select id="selected_column" name="selected_column" class="form-control">
+           {% for e in option_list %}
+            <option>{{ e }}</option>
+           {% endfor %}
+          </select> 
+        </div>
+
+        </div>
+
+        <div class="container">
+
+        <div class="form-group col-sm-3">
+          <label class="control-label" for="top_n">Show the top </label>
+          <input id="top_n" name="top_n" class="form-control col-sm-3" type="text" value="100" spellcheck="false">
+          <select id="genes_or_features" name="genes_or_features" class="form-control col-sm-3">
+            <option>genes_from_features</option>
+            <option>features</option>
+            <option>genes</option>
+          </select> 
+        </div>
+
+        <div class="form-group col-sm-3">
+          <label class="control-label" for="threshold">maximum p-value is _____ </label>
+          <input id="threshold" name="threshold" class="form-control" type="text" value=".005" spellcheck="false">
+
+
+          <br><label class="control-label" for="min_exprs">with at least ____ mapped reads </label>
+          <input id="min_exprs" name="min_exprs" class="form-control" type="text" value="10" spellcheck="false">
+
+        </div>
+
+        </div>
+
+        <div class="container">
+        <div class="form-group col-sm-6">
+          <button type="submit" class="btn btn-default">Search...</button>
+        </div>
+        </div>
+
+      </form>
+

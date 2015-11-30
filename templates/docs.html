@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!-- saved from url=(0043)http://getbootstrap.com/examples/dashboard/ -->
+<html lang="en">
+{% include "header.html" %}
+  <body>
+    {% include 'navbar.html' %}
+
+    <div class="jumbotron">
+      <div class="container">
+        <h1>
+            {% if title is defined -%}
+                {{title}}
+            {% else -%}
+                "Documentation"
+            {% endif -%}
+        </h1>
+        <p>This leaves something to be desired, but it will have to do for now.</p>
+      </div>
+    </div>
+
+        {% for doc in autodoc %}
+        <div class="container">
+            <h2>{{doc.rule|escape}}</h2>
+            <ul class="methods">
+                    {% for method in doc.methods -%}
+                    {{method}} |  
+                    {% endfor %}
+            </ul>
+            <ul class="arguments">
+                {% for arg in doc.args %}
+                    {{arg}} | 
+                    <span class="default">{{doc.defaults[arg]}}</span>
+                {% endfor %}
+            </ul>
+            <!-- p class="docstring">{{doc.docstring|urlize|nl2br}}</p-->
+        </div>
+        {% endfor %}
+
+
+    {% include "footer.html" %}
+
+</body></html>

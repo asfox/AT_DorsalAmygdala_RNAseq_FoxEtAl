@@ -1,0 +1,53 @@
+<html>
+<head>
+<link href="css/bootstrap.min.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="css/jquery-ui.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="css/style_line.css" media="screen" rel="stylesheet" type="text/css" />
+<script src="js/panzoom.js" type="text/javascript"></script>
+<script src="js/jquery.min.js" type="text/javascript"></script>
+<script src="js/xtk.js" type="text/javascript"></script>
+<script src="js/jquery-ui.min.js" type="text/javascript"></script>
+<script src="js/bootstrap.min.js" type="text/javascript"></script>
+<script src="js/rainbow.js" type="text/javascript"></script>
+<script src="js/sylvester.js" type="text/javascript"></script>
+<script src="js/amplify.min.js" type="text/javascript"></script>
+<script src="js/viewer.js" type="text/javascript"></script>
+<script src="js/app_line.js" type="text/javascript"></script>
+</head>
+<body>
+
+<div class='container'>
+<div class='row'>
+	<div class='col-md-10 col-md-offset-1'>
+		<h2>Rhesus Neurosynth viewer demo</h2>
+		<p>Click to view significant clusters associated with AT. 
+
+			(click somehwere to draw initially)
+		</p>
+	</div>
+</div>
+<div class='row'>
+	<div class='col-md-10 col-md-offset-1'>
+			<div id="data_panel">
+				<div class="data_display_row">
+					<div id="image_intent" class="data_label">Cluster Number:</div>
+					<div id="data_current_value"></div>
+				</div>
+			</div>
+			<div class='view' id='view_coronal'>
+				<canvas height='220' id='cor_canvas' width='220'></canvas>
+				<!--div class='slider nav-slider-vertical' id='nav-yaxis'></div-->
+			</div>
+			<div class='view' id='view_sagittal'>
+				<canvas height='220' id='sag_canvas' width='264'></canvas>
+				<!--div class='slider nav-slider-horizontal' id='nav-xaxis'></div-->
+			</div>
+			<div class='view' id='view_axial'>
+				<canvas height='264' id='axial_canvas' width='220'></canvas>
+				<!--div class='slider nav-slider-vertical' id='nav-zaxis'></div-->
+			</div>
+	</div>
+</div>
+</div>
+</body>
+</html>

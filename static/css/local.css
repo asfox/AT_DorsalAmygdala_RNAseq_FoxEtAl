@@ -1,0 +1,54 @@
+.significant {
+    font-style: oblique;
+    font-weight: bold;
+}
+img[alt="gene_model"] { 
+  width: 100%;
+}
+
+body {
+  font: 11px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #CCC;
+  shape-rendering: crispEdges;
+}
+
+.intron {
+  height: 5px;
+}
+
+.exon {
+  height: 40px;
+  shape-rendering: crispEdges;
+}
+
+.junction {
+  height: 1px !important;
+  fill: black !important;
+  opacity: 1 !important;
+}
+
+.significant {
+  stroke: yellow;
+  stroke-width:2px;
+  stroke-opacity:0.25;
+}
+
+.not_significant {
+  stroke: #900;
+  stroke-width:5px;
+  stroke-opacity:0.5;
+  stroke: transparent;
+}
+
+
+.tooltip {
+  position: absolute;
+  width: 200px;
+  height: 28px;
+  pointer-events: none;
+}

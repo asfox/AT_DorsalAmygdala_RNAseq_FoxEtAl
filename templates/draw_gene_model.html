@@ -1,0 +1,280 @@
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+<script type="text/javascript">
+    var margin = {top: 20, right: 20, bottom: 30, left: 40},
+      width = parseInt(d3.select("#gene_model_js").style("width")) //-margin.left - margin.right 
+      //width = parseInt(window.innerWidth) - margin.left - margin.right
+      height = 150 - margin.top - margin.bottom;
+      //console.log( d3.select("#gene_model_js").style("width")) 
+
+    d3.select(window).on('resize', resize);
+    function resize () {
+      //width = parseInt(d3.select('#chart').style('width'), 10);
+      //this_width = width //- margin.left - margin.right;
+      //this_scale = (parseInt(window.innerWidth) )/width
+      this_scale = parseInt(d3.select("#gene_model_js").style("width"))  / width
+
+      this_scale = Math.min(this_scale,3.0)
+      this_scale = Math.max(this_scale,0.33)
+      svg.attr("transform", "scale("+this_scale+",1.0), translate( 0," + margin.top + ")");
+    }
+
+    /* 
+     * value accessor - returns the value to encode for a given data object.
+     * scale - maps value to a visual display encoding, such as a pixel position.
+     * map function - maps from data value to display value
+     * axis - sets up axis
+     */ 
+
+    // setup t-scale...
+    var tValue = function(d) { return d.t;}, // data -> value
+        tScale = d3.scale.linear().range([height, 0]), // value -> display
+        tMap = function(d) { return tScale(tValue(d));}; // data -> display
+        //tAxis = d3.svg.axis().scale(tScale).orient("left");
+
+
+    // setup color scale to span t-values -4 to 4. 
+    var color = d3.scale.linear()
+        .domain([6, 4, 2, 0, -2, -4, -6])
+        .range([d3.rgb(202,0,32),d3.rgb(253,219,199), d3.rgb(244,165,130), d3.rgb(224,224,224), d3.rgb(209,229,240), d3.rgb(103,169,207), d3.rgb(5,113,176)]);
+    var tColorScale = d3.scale.linear().range([0,1]),
+        tColorMap = function(d) { return color(tValue(d)); };
+
+    // setup x coordinate scale to span the gene length...
+    var startValue = function(d) { return d.start;}, // data -> value
+        coordScale = d3.scale.linear().range([0, width]), // value -> display
+        startMap = function(d) { return coordScale(startValue(d));};
+        stopValue = function(d) { return d.stop;}; // data -> value
+        stopMap = function(d) { return coordScale(stopValue(d));},
+        diffValue = function(d) {return d.stop-d.start;},
+        diffMap = function(d) { return stopMap(d)-startMap(d) },//coordScale(diffValue(d));},
+        coordAxis = d3.svg.axis().scale(coordScale).orient("bottom");
+
+    // set height by feature type
+    var fValue = function(d) { return d.feature_type;},
+        fScale = d3.scale.ordinal().domain([10, 20, 30])
+        fMap = function(d) { 
+          var mapper = {"EXON": 40, "ITRN": 5, "KJXN": 1, "NJXN": 1 }
+          return mapper[d.feature_type]
+        };
+    // set feature offsets so that the gene moeds
+    var fOffset = function(d) {
+          var mapper = {"EXON": height-40-fMap(d)/2, "ITRN": height-40-fMap(d)/2, "KJXN": height- Math.random()*5-(5/2), "NJXN": height-Math.random()*5-(5/2)  }
+          return mapper[d.feature_type]
+        };
+          //console.log(fValue(d)); return fScale(fValue(d)); };
+
+
+    // setup p-value  
+    var pValue = function(d) { return d["p"];}, // data -> value
+        pScale = d3.scale.linear().range([height, 0]), // value -> display
+        pMap = function(d) { return pScale(pValue(d));}; // data -> display
+
+    // prepare y-scale.
+    var yScale = d3.scale.linear().range([height, 0]), // value -> display
+        yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+
+    // return class functions to assign the right class to drawings that correspond to different features.
+    var return_class = function(d) {
+      return is_significant(d).concat(which_feature(d))
+    };
+    var is_significant = function(d) { if( pValue(d)<.05 ){return "significant";} else {return "not_significant"; } };
+    var which_feature = function(d) { 
+        var mapper = {"EXON": " exon ", "ITRN": " intron ", "KJXN": " junction ", "NJXN": " junction " }
+        return mapper[d.feature_type]
+      };
+
+
+    // function that redirects to the URL for the feature -- errors on junctions that span across an exon. 
+    var full_link = function(d) {
+      new_url = "../scatterize_feature/".concat(d['chromasome'],":",d['gene_id'], ",",d['gene_symbol'],"@",d['feature_type'],":", d['annotation_type'],"=",d['start'],"-",d['stop'])
+      window.location = new_url
+    }
+
+    // add the graph canvas to the body of the webpage
+    //var svg = d3.select("body").append("svg")
+    var svg = d3.select("#gene_model_js").append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%")
+      .append("g")
+        .attr("width", width ) // + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .attr("transform", "translate( 0 ," + margin.top + ")");
+        //.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // add the tooltip area to the webpage
+    var tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+
+    d3.csv("../parse_features_for_d3/{{ this_title }}.csv", function(data) {
+      // change string (from CSV) into number format
+      data.forEach(function(d) {
+        d.t= +d.t;
+        d["p"] = +d["p"];
+        d["start"] = +d["start"];
+        d["stop"] = +d["stop"];
+        //console.log(d);
+      });
+
+      // don't want dots overlapping axis, so add in buffer to data domain
+      coordScale.domain([d3.min(data, startValue)-2500, d3.max(data, stopValue)+2500]);
+
+      tScale.domain([-4, 4]);
+      yScale.domain([0, 1]);
+
+      // x-axis
+      svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(coordAxis)
+        .append("text")
+          .attr("class", 'label')
+          .attr("class", "label")
+          .attr("x", 10)
+          .attr("y", -100)
+          .style("text-anchor", "start")
+          .text( data[0]['chromasome']+" (length: "+String(Math.abs(d3.min(data, startValue)-d3.max(data, stopValue))) + ")" );
+        //.append("text")
+          //.attr("class", "label")
+          //.attr("x", width)
+          //.attr("y", -6)
+          //.style("text-anchor", "end")
+          //.text(data[0]['chromasome']);
+
+      // y-axis
+      svg.append("g")
+          .attr("class", "y axis")
+          .attr("visibility","hidden")
+          .style("stroke", "transparent" )
+          .call(yAxis)
+
+      coord_data = data;//data.slice(1,7)
+      //console.log(coord_data)
+
+      // draw dots
+      svg.selectAll(".feature")
+          .data(coord_data)
+        .enter().append("rect")
+          .attr("class", return_class )// "dot")
+          //.attr("r", 3.5)
+          .attr("x", startMap)
+          .attr("width", diffMap)
+          .attr("y", fOffset )//tMap)
+          .attr("height", fMap)
+          .style("fill", tColorMap )//function(d) { return color(cValue(d));}) 
+          //.style("stroke-width", 5 )
+          //.style("stroke", "transparent" )
+          .on("click", function (d) { 
+            full_link(d)
+            //window.location = full_link;
+          })
+          .on("mouseover", function(d) {
+              d3.select(this).transition().duration(200)
+                  .style("stroke-width", "7px")
+                  .style("stroke", "red")
+                  .style("stroke-opacity", ".15");
+              tooltip.transition()
+                   .duration(200)
+                   .style("opacity", .9)
+              tooltip.html(d["chromasome"] + ":" + d["start"] + "-" + d["stop"] + "<br/> "+which_feature(d)+": t=" + tValue(d) + ", p=" + pValue(d) + ")")
+                   .style("left", (d3.event.pageX - 45) + "px")
+                   .style("top", (d3.event.pageY - 95) + "px")
+                   .style("border-radius", "10px")
+                   .style("margin", "20px")
+                   .style("height", "60px")
+                   .style("line-height", "20px")
+                   .style("padding", "10px 10px")
+                   .style("vertical-align", "text-top")
+                   .style("background", "lightgray" );
+          })
+          .on("mouseout", function(d) {
+              d3.select(this).transition().duration(200)
+                  .style("stroke-width", '' )
+                  .style("stroke", '')
+                  .style("stroke-opacity", "");
+              tooltip.transition()
+                   .duration(500)
+                   .style("opacity", 0);
+          });
+
+
+      // draw legend
+      var gradient = svg.append("svg:defs")
+        .append("svg:linearGradient")
+        .attr("id", "gradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "0%")
+        .attr("spreadMethod", "pad")
+        // Define the gradient colors
+
+
+        gradient.append("svg:stop")
+          .attr("offset", "0%")
+          .attr("stop-color", d3.rgb(5,113,176) )
+          .attr("stop-opacity", 1);
+        gradient.append("svg:stop")
+          .attr("offset", "17%")
+          .attr("stop-color", d3.rgb(103,169,207))
+          .attr("stop-opacity", 1);
+        gradient.append("svg:stop")
+          .attr("offset", "34%")
+          .attr("stop-color", d3.rgb(209,229,240))
+          .attr("stop-opacity", 1);
+        gradient.append("svg:stop")
+          .attr("offset", "50%")
+          .attr("stop-color", d3.rgb(247,247,247) )
+          .attr("stop-opacity", 1);
+        gradient.append("svg:stop")
+          .attr("offset", "66%")
+          .attr("stop-color", d3.rgb(253,219,199))
+          .attr("stop-opacity", 1);
+        gradient.append("svg:stop")
+          .attr("offset", "83%")
+          .attr("stop-color", d3.rgb(239,138,98))
+          .attr("stop-opacity", 1);
+        gradient.append("svg:stop")
+          .attr("offset", "100%")
+          .attr("stop-color", d3.rgb(202,0,32))
+          .attr("stop-opacity", 1);
+        var legend = svg.append('rect')
+          .attr("x", width-10-70)
+          .attr("y", 5)
+          .attr("width", 70)
+          .attr("height", 15)
+          .style("fill", "url(#gradient)");
+
+        // draw legend text
+        svg.append("text")
+          .attr("x", width - 10 - 60)
+          .attr("y", 25)
+          .attr("dy", ".35em")
+          .style("text-anchor", "end")
+          .text("-4")
+        svg.append("text")
+          .attr("x", width-10 )
+          .attr("y", 25)
+          .attr("dy", ".35em")
+          .style("text-anchor", "end")
+          .text("4")
+        svg.append("text")
+          .attr("x", width-10-(60/2) )
+          .attr("y", 25)
+          .attr("dy", ".35em")
+          .style("text-anchor", "end")
+          .text("0")
+        svg.append("text")
+          .attr("x", width-10 )
+          .attr("y", 0)
+          .attr("dy", ".35em")
+          .style("text-anchor", "end")
+          .text("t-value")
+
+    });
+
+    </script>
+

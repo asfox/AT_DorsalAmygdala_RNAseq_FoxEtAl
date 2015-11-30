@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!-- saved from url=(0043)http://getbootstrap.com/examples/dashboard/ -->
+<html lang="en"><head>
+    <link rel="icon" href="http://www.bi.wisc.edu/~fox/images/neuron_icon.ico">
+
+
+
+
+    <!-- Bootstrap core CSS -->
+    <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="http://getbootstrap.com/examples/dashboard/dashboard.css" rel="stylesheet">
+
+
+
+  </head>
+
+  <body>
+
+<input class="typeahead" type="text" placeholder="search (gene id)" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top; background-color: transparent;">
+
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="{{ url_for('static', filename='js/jquery-2.1.4.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/typeahead.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/typeahead.bundle.js') }}"></script>
+
+
+  
+<script type="text/javascript">
+$(document).ready(function() {
+  var gene_list = new Bloodhound({
+      datumTokenizer: function(d) { 
+          return Bloodhound.tokenizers.whitespace(d.gene); 
+      },
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      //prefetch: 'http://127.0.0.1:5000/json_test.json'
+      {% autoescape false %}
+      local: {{ this_list }}
+      {% endautoescape %}
+
+});
+
+gene_list.initialize();
+a = 1;
+
+$('.typeahead').typeahead(null, {
+    displayKey: 'gene',
+    highlight: 'true',
+    source: gene_list
+});
+});
+</script>
+
+</body></html>

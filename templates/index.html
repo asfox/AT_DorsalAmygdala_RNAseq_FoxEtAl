@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!-- saved from url=(0043)http://getbootstrap.com/examples/dashboard/ -->
+<html lang="en">
+  {% include "header.html" %}
+
+  <body>
+
+    {% include 'navbar.html' %}
+
+    <div class="jumbotron">
+    <div class="container">
+        <h1>Kalin-Knowles RNAseq </h1>
+
+         {% include 'search_gene.html' %}
+
+    </div>
+    </div>
+        <div class="container">
+          <p>
+          <h1>or...</h1>
+          </p>
+        </div>
+
+        <div class="jumbotron">
+          {% include 'search_top_list.html' %}
+        </div>
+
+        <div class="container">
+
+
+        {% include "footer.html" %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="{{ url_for('static', filename='js/jquery-2.1.4.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/typeahead.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/typeahead.bundle.js') }}"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  var gene_list = new Bloodhound({
+      datumTokenizer: function(d) { 
+          return Bloodhound.tokenizers.whitespace(d.gene); 
+      },
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      //prefetch: 'http://127.0.0.1:5000/json_test.json'
+      {% autoescape false %}
+      local: {{ gene_set_for_search }}
+      {% endautoescape %}
+
+});
+
+gene_list.initialize();
+a = 1;
+
+$('.typeahead').typeahead(null, {
+    displayKey: 'gene',
+    highlight: 'true',
+    source: gene_list
+});
+});
+</script>
+
+  
+
+</body></html>

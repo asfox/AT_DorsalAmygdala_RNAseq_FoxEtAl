@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!-- saved from url=(0043)http://getbootstrap.com/examples/dashboard/ -->
+<html lang="en">
+  {% include "header.html" %}
+
+  <body>
+    {% include 'navbar.html' %}
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            {% for e in result_elements %}
+                <li><a href="#{{ e.title }}">{{ e.title }}</a></li>
+            {% endfor %} 
+            </ul>
+        <p><br><br></p>
+          <ul class="nav nav-sidebar">
+            <li><a href="../scatterize/{{ this_title }}">Scaterize {{ this_title }}</a></li>
+            <li><a href="http://www.ncbi.nlm.nih.gov/pubmed?cmd=search&term={{ this_title }}">Search PubMed</a></li>
+            <li><a href="http://human.brain-map.org/microarray/search/show?exact_match=false&search_term={{ this_title }}&search_type=gene">Search AllenBrain</a></li>
+          </ul>
+        </div>
+
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">{{ this_title }}</h1>
+
+         {% for e in result_elements %}
+          <a class='none' name="{{ e.title }}"></a>
+          <div name="{{ e.title }}" class="panel panel-default">
+          <div class="panel-heading">
+           <h2 class="panel-title">{{ e.title }}</h2>
+          </div>
+          <div class="panel-body">
+            {{ e.notes }}
+          </div>
+          <div class="table-responsive">
+                {{e.content}} 
+          </div>
+          </div>
+          {% endfor %}
+
+          {% include "footer.html" %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="{{ url_for('static', filename='js/jquery-2.1.4.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    {% include "draw_gene_model.html" %}
+
+</body></html>
