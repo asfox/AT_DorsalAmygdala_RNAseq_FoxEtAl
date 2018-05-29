@@ -2,32 +2,54 @@
 <!-- saved from url=(0043)http://getbootstrap.com/examples/dashboard/ -->
 <html lang="en">
   {% include "header.html" %}
-
   <body>
     {% include 'navbar.html' %}
 
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
+      <div class="row d-flex row-offcanvas row-offcanvas-left">
+
+        <!-- Navbar control column -->
+        <div class="col-xs-1 hidden-xs-down order-1 pr-0" style="background-color: #deebf7;" >
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#sidebar" aria-controls="sidebar" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="fa fa-bars fa-lg"></i>
+          </button>
+        </div>      
+
+        <!-- Sidebar/Navbar column --> 
+        <div class="col-sm-3 col-md-2 order-2 col-xs-1 pl-0 collapse show" style="background-color: #deebf7;" id="sidebar" name="sidebar">
+
+          <ul class="nav nav-pills flex-column">
             {% for e in result_elements %}
-                <li><a href="#{{ e.title }}">{{ e.title }}</a></li>
+              <li class="nav-item"><a class="nav-link pl-0" href="#{{ e.title }}">
+                  {{ e.title }}
+              </a></li> 
             {% endfor %} 
-            </ul>
-        <p><br><br></p>
-          <ul class="nav nav-sidebar">
-            <li><a href="../scatterize/{{ this_title }}">Scaterize {{ this_title }}</a></li>
-            <li><a href="http://www.ncbi.nlm.nih.gov/pubmed?cmd=search&term={{ this_title }}">Search PubMed</a></li>
-            <li><a href="http://human.brain-map.org/microarray/search/show?exact_match=false&search_term={{ this_title }}&search_type=gene">Search AllenBrain</a></li>
+
+            <li class="nav-item nav-header pt-5">External Links</li>
+          
+            <li class="nav-item">
+              <a class="nav-link" href="../scatterize/{{ this_title }}"><i class="fa fa-bar-chart" aria-hidden="true"></i>Scaterize {{ this_title }}</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="http://www.ncbi.nlm.nih.gov/pubmed?cmd=search&term={{ this_title }}"><i class="fa fa-search" aria-hidden="true"></i>PubMed {{ this_title }}</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="http://human.brain-map.org/microarray/search/show?exact_match=false&search_term={{ this_title }}&search_type=gene"><i class="fa fa-search" aria-hidden="true"></i> AllenBrain {{ this_title }}</a>
+            </li>
           </ul>
         </div>
 
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+
+        <!-- Body column -->
+        <!--nav class="col-sm-9 col-sm-offset-3 col-md-9 col-md-offset-2 main"-->
+        <div class="col-sm-8 col-md-9 order-3 main" >
+
+          <!--a href="#" data-toggle="offcanvas"><i class="fa fa-bars fa-lg"></i></a-->
           <h1 class="page-header">{{ this_title }}</h1>
 
          {% for e in result_elements %}
           <a class='none' name="{{ e.title }}"></a>
-          <div name="{{ e.title }}" class="panel panel-default">
+          <div id="{{ e.title }}" name="{{ e.title }}" class="panel panel-default">
           <div class="panel-heading">
            <h2 class="panel-title">{{ e.title }}</h2>
           </div>
@@ -40,16 +62,15 @@
           </div>
           {% endfor %}
 
-          {% include "footer.html" %}
         </div>
+
+
+
+
       </div>
+          {% include "footer.html" %}
     </div>
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="{{ url_for('static', filename='js/jquery-2.1.4.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     {% include "draw_gene_model.html" %}
 
 </body></html>

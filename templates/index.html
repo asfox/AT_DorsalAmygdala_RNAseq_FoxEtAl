@@ -9,10 +9,31 @@
 
     <div class="jumbotron">
     <div class="container">
-        <h1>Kalin-Knowles RNAseq </h1>
+      {% if error_text is defined -%}
+        <div class="text-danger"><h1>{{ error_text }}</h1></div>
+      {% endif -%}
 
+      <div class='row border'>
+       <div class="col-sm-8">
+        <h1>{{ this_title }}</h1>
+          <h3><small class="text-muted">Site by Andrew Fox</small><br>
+          Learn more <a href="about">about this web-resource.</a> </h3>
+        </h1>
+        </div>
+        <div class="col-sm-3">
+          <img src="{{ url_for('static', filename='AT.svg') }}" width="100%" alt="AT logo">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-8">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-8">
          {% include 'search_gene.html' %}
-
+        </div>
+      </div>
+    </div>
     </div>
     </div>
         <div class="container">
@@ -37,8 +58,6 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="{{ url_for('static', filename='js/jquery-2.1.4.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/typeahead.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/typeahead.bundle.js') }}"></script>
 

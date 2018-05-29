@@ -1,28 +1,16 @@
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-dark bg-dark ">
       <div class="container-fluid">
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="http://at.psychiatry.wisc.edu/rnaseq">RNAseq analyses</a>
-
+          <a class="navbar-brand" href="{{ url_for('also_welcome') }}">
+            <i class="fa fa-home" aria-hidden="true"></i> RNAseq analyses</a>
         </div>
-        <!-- COMMENTED BELOW, could be used to incldue some links... -->
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="../documentation">docs</a></li>
-            <!--li><a href="http://getbootstrap.com/examples/dashboard/#">Help</a></li-->
-          </ul>
-          <div id="my_search">
+        <div class="navbar-header bg-dark navbar-dark" id="my_search">
           <form class="navbar-form navbar-right" action='../results' method="get" >
-            <label for="gene_search">Gene Search: </label>
+            <label for="gene_search" class="text-white">
+              <i class="fa fa-search" aria-hidden="true"></i> Gene Search: </label>
             <input name="gene_search" id="gene_search" class="typeahead" type="text" placeholder="search (gene id)" autocomplete="off" spellcheck="false" dir="auto" >
             <button value="Send" class="btn" type="submit" id="submit"></button>
           </form>
-          </div>
-      </div>
+        </div>
       </div>
     </nav>

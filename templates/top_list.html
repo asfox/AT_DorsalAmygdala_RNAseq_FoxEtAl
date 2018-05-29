@@ -7,7 +7,7 @@
 
     {% include "navbar.html" %}
 
-    <div class="jumbotron">
+    <div class="jumbotron mb-0">
       <div class="container">
         <h1>Top {{ corr_type }}s</h1>
 
@@ -18,6 +18,19 @@
         <!-- THIS IS PROBABLY A GOOD PLACE FOR A LEARN MORE BUTTONp><a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a></p-->
       </div>
     </div>
+    <div class="jumbotron mt-0 pt-0 mb-0 pb-0" style="background-color: #e3f2fd;">
+      <nav class="navbar navbar-light" >
+        <ul class="nav nav-pills">
+        <a class="navbar-brand" href="#">Contents:</a>
+          {% for e in result_elements %}
+            <li class="nav-item"><a class="nav-link pl-0" href="#{{ e.title }}">
+                {{ e.title }}
+            </a></li>
+          {% endfor %} 
+        </ul>
+      </nav>
+    </div>
+
         <div class="container">
           <h1 class="page-header">{{ this_title }}</h1>
 
