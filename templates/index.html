@@ -70,10 +70,14 @@ $(document).ready(function() {
       queryTokenizer: Bloodhound.tokenizers.whitespace,
       //prefetch: 'http://127.0.0.1:5000/json_test.json'
       {% autoescape false %}
-      local: {{ gene_set_for_search }}
+      local: 
+      {% if gene_set_for_search is defined %}
+        {{ gene_set_for_search }}
+      {% else %}
+        ['CRH', 'NTRK3']
+      {% endif %}
       {% endautoescape %}
-
-});
+  });
 
 gene_list.initialize();
 a = 1;

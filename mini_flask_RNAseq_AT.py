@@ -28,6 +28,8 @@ import markdown
 from flask import Flask, make_response, render_template, Markup, request, redirect, Response
 #from flask_bootstrap import Bootstrap
 
+from werkzeug.contrib.fixers import ProxyFix
+
 import requests
 
 #import urllib2, urllib
@@ -47,6 +49,7 @@ except ImportError:
 # from flask_sitemap import Sitemap
 
 app = Flask(__name__, static_url_path='/static')
+
 # Bootstrap(app)
 # ext = Sitemap()
 # from flask_shorturl import ShortUrl
@@ -1117,8 +1120,7 @@ def print_results(gene_of_interest, primary_variable='Anxious Temperament (mean)
     return render_template('results.html', **locals())
 
 
-
-if __name__ == 'mini_flask_RNAseq_AT' or __name__ == '__main__':
+def init():
     rnaseq_file = 'static/data/feature_quantification/rhesus_features_and_intergenes/RHESUS_QUANTILE_FEATURES.scrs'
     column_names = ['name','1', '11', '12', '13', '14', '15', '16', '17', '18', '19', '2', '21', '22', '23', '24', '25', '26', '27', '28', '29', '3', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '4', '40', '41', '42', '43',     '44', '45', '46', '47', '48', '5', '6', '7', '8', '9', 'type', 'n', 'mean?']
     # read data -- surprisingly hard, make sure to skip the first line... 
@@ -1230,7 +1232,7 @@ if __name__ == 'mini_flask_RNAseq_AT' or __name__ == '__main__':
         }
 
 
-#[ 'Average (quantile normalized)', 'Average (raw reads)', 'Standard deviation', 'Observed in __ subjects']
+    #[ 'Average (quantile normalized)', 'Average (raw reads)', 'Standard deviation', 'Observed in __ subjects']
 
     column_keys_to_drop = ['ATPfcRCONN', 'ATUncinateFA', 'Time1Time2_mean']
     for this_df in df_list:
@@ -1242,4 +1244,15 @@ if __name__ == 'mini_flask_RNAseq_AT' or __name__ == '__main__':
 
     # app.config['SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS'] = True
     # ext.init_app(app)
-    app.run(debug=True)
+
+    return d, alld, gened,results, gene_results,gene_pet_results, rhesus2human_gene_results,gene_from_features_pet_results,gene_from_features_results
+
+
+d, alld, gened,results, gene_results,gene_pet_results, rhesus2human_gene_results,gene_from_features_pet_results,gene_from_features_results = init()
+app.wsgi_app = ProxyFix(app.wsgi_app)
+
+# if __name__ == 'mini_flask_RNAseq_AT' or __name__ == '__main__':
+    # app.run(host='127.0.0.1',port=5001)
+
+if __name__ == '__main__':
+    app.run()
