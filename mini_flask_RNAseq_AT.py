@@ -4,19 +4,8 @@ import numpy as np
 import gspread
 import glob as glob
 import re 
-
-import statsmodels.formula.api as smf
-import statsmodels.api as sm
-import statsmodels.sandbox.stats.multicomp as mc
-
-import matplotlib.pyplot as plt
-from matplotlib import cm, colors, patches, ticker
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-import seaborn as sns
-
 import json
-from flask import jsonify
+
 
 try:
     from StringIO import StringIO
@@ -26,36 +15,18 @@ except ImportError:
 import markdown
 
 from flask import Flask, make_response, render_template, Markup, request, redirect, Response
-#from flask_bootstrap import Bootstrap
 
 from werkzeug.contrib.fixers import ProxyFix
 
 import requests
 
-#import urllib2, urllib
 try:
     from urllib.request import urlopen, HTTPCookieProcessor
 except ImportError:
     # Fall back to Python 2's urllib2
     from urllib2 import urlopen, HTTPCookieProcessor
 
-#try:
-#    # For Python 3.0 and later
-#    from http.cookiejar import CookieJar
-#except ImportError:
-#    from cookielib import CookieJar
-# import poster
-
-# from flask_sitemap import Sitemap
-
 app = Flask(__name__, static_url_path='/static')
-
-# Bootstrap(app)
-# ext = Sitemap()
-# from flask_shorturl import ShortUrl
-# surl = ShortUrl(app)
-#from flask.ext.autodoc import Autodoc
-#auto = Autodoc(app)
 
 
 @app.route('/test_d3/<gene_of_interest>')
@@ -98,48 +69,13 @@ def parse_features_for_d3(gene_of_interest):
     return Response(generate(), mimetype='text/csv')
 
 
-@app.route('/parse_features_for_d3/<gene_of_interest>.json')
-def parse_features_for_d3_json(gene_of_interest):
-    column_regex=','+gene_of_interest+'@'
-    # print column_regex
-    these_results = results
-    these_results.index = these_results['name']
-    these_results = these_results.transpose()
-    these_results = these_results.filter(regex=column_regex )
-
-    some_results = these_results.transpose().filter(regex='^Anxious Temperament \(mean\)')
-
-    print( [re.split(r'[,@\:\=\-\_]', feature)[0:5][:] for feature in some_results.index] )
 
 
-    # [some_results['chromasome'],some_results['gene_id'],some_results['gene_symbol'],some_results['feature_type'], some_results['annotation_type']] = [re.split(r'[,@\:\=\-\_]', feature)[0:5] for feature in some_results.index] 
-    # (chromasome,gene_id,gene_symbol,feature_type,annotation_type) = [re.split(r'[,@\:\=\-\_]', feature)[0:5] for feature in some_results.index] 
-    arr = [re.split(r'[,@\:\=\-\_]', feature)[0:5] for feature in some_results.index] 
-    print( arr[1] )
-
-    # for feature in d.filter(regex=column_regex).columns:
-    #     # amt = these_results.ix[these_results.index==feature]['average_exprs'].values[0]
-    #     some_results['t'] = np.round(some_results.ix[some_results.index==feature].values[0,0], decimals=2)
-    #     some_results['p'] = np.round(some_results.ix[some_results.index==feature].values[0,1], decimals=4)
-
-
-    #     p = re.split(r'[,@\:\=\-\_]', feature)   
-    
-    #     some_results['chromasome'] = p[0]
-    #     some_results['gene_id'] = p[1]
-    #     some_results['gene_symbol'] = p[2]
-    #     some_results['feature_type'] = p[3]
-    #     some_results['annotation_type'] = p[4]
-    #     coords = [int(coord) for coord in p[5:len(p)] ]
-    #     some_results['coords'] = ','.join(p[5:len(p)])
-    #     some_results['start'] = 1.0*coords[0]
-    #     some_results['stop'] = 1.0*coords[-1]
-    #     some_results['middle'] = coords[0]+(coords[-1]-coords[0])/2.0
-
-
-    print(  some_results )
-    return Response(some_results.to_json(orient='index'), mimetype='application/json')
-
+@app.route('/test', methods=['GET'])
+def test_return():
+    print( request.url)
+    print( request.query_string)
+    return( request.query_string)
 
 
 
@@ -262,70 +198,11 @@ def enrichr_list(gene_list):
 
 
 
-    print(data)
+    # print(data)
 
 
-# def enrichr_list_depreciated(gene_list):
-#     print('what?')
-#     if 'analysis_name' in request.args:
-#         analysis_name = request.args.get('analysis_name')
-#     else:
-#         analysis_name = 'abba'
-# 
-#     genesStr = '\n'.join( gene_list.split(';') )
-#     #post a gene list to enrichr server and get the link.
-#     cj = CookieJar()
-#     opener = poster.streaminghttp.register_openers()
-#     opener.add_handler(HTTPCookieProcessor(CookieJar()))
-# 
-#     params = {'list':genesStr,'description':analysis_name}
-#     datagen, headers = poster.encode.multipart_encode(params)
-#     url = "http://amp.pharm.mssm.edu/Enrichr/enrich"
-#     enrichr_request = Request(url, datagen,headers)
-#     urlopen(enrichr_request)
-# 
-#     x = urlopen("http://amp.pharm.mssm.edu/Enrichr/share")
-#     responseStr = x.read()
-#     splitPhrases = responseStr.split('"')
-#     linkID = splitPhrases[3]
-#     shareUrlHead = "http://amp.pharm.mssm.edu/Enrichr/enrich?dataset="
-#     enrichrLink = shareUrlHead + linkID
-#     cj.clear_session_cookies()
-#     return redirect(enrichrLink)
 
-def get_top_list_args( this_args ):
-    expression_threshold=0
-    sort_col = 2
-    thr = None
-    n = None
-    if 'n' in this_args:
-        n = int(this_args.get('n'))
-    if 'min_exprs' in this_args:
-        expression_threshold = int(this_args.get('min_exprs'))
-    if 'sort_col' in this_args:
-        sort_col = int(this_args.get('sort_col'))
-    if 'threshold' in this_args:
-        thr = float(this_args.get('threshold'))
-
-    return (n, expression_threshold, sort_col, thr)
-
-
-@app.route('/top_genes/<column_wildcard>', methods=['GET'])
-#@auto.doc()
-def gene_index( column_wildcard ):
-    corr_type = 'whole-gene'
-    usage = 'Example Usage: top_genes/T1T3?n=10&min_exprs=100&sort_col=1'
-
-    expression_threshold=0
-    sort_col = 1
-    n = int(request.args.get('n'))
-    if 'min_exprs' in request.args:
-        expression_threshold = int(request.args.get('min_exprs'))
-    if 'sort_col' in request.args:
-        sort_col = int(request.args.get('sort_col'))
-    result_elements = list() 
-
-
+def filter_genes(column_wildcard, n, expression_threshold, sort_col, thr):
     some_results = gene_results.filter(regex=re.escape(column_wildcard))[gene_results['Average (quantile normalized)']>expression_threshold]
 
     selected_column = some_results.columns[sort_col]
@@ -333,8 +210,36 @@ def gene_index( column_wildcard ):
     n = abs(n)
     some_results = some_results.head( n=n ) 
     some_results.columns = [c.replace('_', ' ') for c in some_results.columns] 
+
+    return some_results
+
+
+@app.route('/top_genes/<column_wildcard>.csv', methods=['GET'])
+def gene_index_csv( column_wildcard ):
+    (n, expression_threshold, sort_col, thr) = get_top_list_args( request.args, expression_threshold=0, sort_col=1)
+    some_results = filter_genes(column_wildcard, n, expression_threshold, sort_col, thr)
+    return return_csv(some_results)
+
+
+@app.route('/top_genes/<column_wildcard>', methods=['GET'])
+def gene_index( column_wildcard ):
+    corr_type = 'whole-gene'
+    usage = 'Example Usage: top_genes/T1T3?n=10&min_exprs=100&sort_col=1'
+
+    (n, expression_threshold, sort_col, thr) = get_top_list_args( request.args, expression_threshold=0, sort_col=1)
+    # expression_threshold=0
+    # sort_col = 1
+    # n = int(request.args.get('n'))
+    # if 'min_exprs' in request.args:
+    #     expression_threshold = int(request.args.get('min_exprs'))
+    # if 'sort_col' in request.args:
+    #     sort_col = int(request.args.get('sort_col'))
+
+    some_results = filter_genes(column_wildcard, n, expression_threshold, sort_col, thr)
     selected_column = some_results.columns[sort_col]
 
+
+    result_elements = list() 
     gene_set_for_search = '['+''.join( ["{'gene':'"+c+"'}," for c in some_results.index])+']'
 
     scatterize_all_data = ';'.join(some_results.index)
@@ -350,6 +255,9 @@ def gene_index( column_wildcard ):
     export_all_label = selected_column.replace(' ','_')+'_top_'+str(n)+'_genes_over_'+str(expression_threshold)+'_reads'
     export_all_link = '<a href="../export_list/'+export_all_label+'.txt?list='+export_all_data+'">Export this gene list.</a>' 
     export_link_notes = 'This will return a .txt with the genes on this page.' 
+
+    export_csv_link = '<a href="/top_genes/'+column_wildcard+'.csv?'+str(request.query_string, 'utf-8')+'">Export table as csv.</a>' 
+    export_csv_notes = 'Download a .csv file with the tabular data on this page.' 
 
     some_results['Gene Name'] = ["<a href=\"/results/"+c+"\">"+c+"</a>" for c in some_results.index ]
 
@@ -367,20 +275,37 @@ def gene_index( column_wildcard ):
     result_elements.append( {'title': 'Scatterize feature list', 'notes': scatterize_link_notes, 'content': Markup(scatterize_all_link) } )
     result_elements.append( {'title': 'Enrichr feature list', 'notes': enrichr_link_notes, 'content': Markup(enrichr_all_link) } )
     result_elements.append( {'title': 'Export feature list', 'notes': export_link_notes, 'content': Markup(export_all_link) } )
+    result_elements.append( {'title': 'Export table as .csv', 'notes': export_csv_notes, 'content': Markup(export_csv_link) } )
 
 
     this_title = selected_column
     return render_template('top_list.html', **locals())
     
 
-@app.route('/top_genes_from_features/<column_wildcard>', methods=['GET'])
-#@auto.doc()
-def genes_from_features_index( column_wildcard ):
-    corr_type = 'whole-gene from exon'
-    usage = 'Example Usage: top_genes_from_features/T1T3?n=10&min_exprs=100&sort_col=1'
-    result_elements = list() 
+def return_csv(df, filename='results.csv'):
+    resp = make_response(df.to_csv())
+    resp.headers["Content-Disposition"] = "attachment; filename="+filename
+    resp.headers["Content-Type"] = "text/csv"
+    return resp
 
-    (n, expression_threshold, sort_col, thr) = get_top_list_args( request.args )  
+
+def get_top_list_args( this_args, expression_threshold=0, sort_col=2, thr=None, n=None ):
+    expression_threshold=0
+    sort_col = 2
+    thr = None
+    n = None
+    if 'n' in this_args:
+        n = int(this_args.get('n'))
+    if 'min_exprs' in this_args:
+        expression_threshold = int(this_args.get('min_exprs'))
+    if 'sort_col' in this_args:
+        sort_col = int(this_args.get('sort_col'))
+    if 'threshold' in this_args:
+        thr = float(this_args.get('threshold'))
+
+    return (n, expression_threshold, sort_col, thr)
+
+def filter_genes_from_features(column_wildcard, n, expression_threshold, sort_col, thr):
     some_results = gene_from_features_results.filter(regex=re.escape(column_wildcard))# [gene_from_features_results['Average (quantile normalized)']>expression_threshold]
 
     some_results = some_results.ix[some_results.filter(regex='_df$').min(axis=1)>1]
@@ -396,6 +321,25 @@ def genes_from_features_index( column_wildcard ):
 
     some_results = some_results.head( n=n ) 
     some_results.columns = [c.replace('_', ' ') for c in some_results.columns] 
+
+    return some_results
+
+@app.route('/top_genes_from_features/<column_wildcard>.csv', methods=['GET'] )
+def genes_from_features_index_csv( column_wildcard ):
+    (n, expression_threshold, sort_col, thr) = get_top_list_args( request.args ) 
+    some_results = filter_genes_from_features(column_wildcard, n, expression_threshold, sort_col, thr)
+    return return_csv(some_results)
+
+@app.route('/top_genes_from_features/<column_wildcard>', methods=['GET'])
+#@auto.doc()
+def genes_from_features_index( column_wildcard ):
+    corr_type = 'whole-gene from exon'
+    usage = 'Example Usage: top_genes_from_features/T1T3?n=10&min_exprs=100&sort_col=1'
+    result_elements = list() 
+
+    (n, expression_threshold, sort_col, thr) = get_top_list_args( request.args )  
+    some_results = filter_genes_from_features(column_wildcard, n, expression_threshold, sort_col, thr)
+
     selected_column = some_results.columns[sort_col]
 
     gene_set_for_search = '['+''.join( ["{'gene':'"+c+"'}," for c in some_results.index])+']'
@@ -414,6 +358,9 @@ def genes_from_features_index( column_wildcard ):
     export_all_link = '<a href="../export_list/'+export_all_label+'.txt?list='+export_all_data+'">Export this list.</a>' 
     export_link_notes = 'This will return a .txt with the genes on this page.' 
 
+    export_csv_link = '<a href="/top_genes_from_features/'+column_wildcard+'.csv?'+str(request.query_string, 'utf-8')+'">Export table as csv.</a>' 
+    export_csv_notes = 'Download a .csv file with the tabular data on this page.' 
+
     some_results['Gene Name'] = ["<a href=\"/results/"+c+"\">"+c+"</a>" for c in some_results.index ]
 
     cols = some_results.columns.values
@@ -430,35 +377,15 @@ def genes_from_features_index( column_wildcard ):
     result_elements.append( {'title': 'Scatterize feature list', 'notes': scatterize_link_notes, 'content': Markup(scatterize_all_link) } )
     result_elements.append( {'title': 'Enrichr feature list', 'notes': enrichr_link_notes, 'content': Markup(enrichr_all_link) } )
     result_elements.append( {'title': 'Export feature list', 'notes': export_link_notes, 'content': Markup(export_all_link) } )
+    result_elements.append( {'title': 'Export table as .csv', 'notes': export_csv_notes, 'content': Markup(export_csv_link) } )
+
 
 
     this_title = selected_column
     return render_template('top_list.html', **locals())
     
 
-
-
-
-
-@app.route('/top_features/<column_wildcard>', methods=['GET'] )
-#@auto.doc()
-def feature_index( column_wildcard ):
-    corr_type = 'feature'
-    usage = 'Example Usage: top_features/T1T3?n=10&min_exprs=100&sort_col=1'
-
-    expression_threshold=0
-    sort_col = 2
-    if 'n' in request.args:
-        n = int(request.args.get('n'))
-    else: 
-        n=results.shape[0]
-        print( n )
-    if 'min_exprs' in request.args:
-        expression_threshold = int(request.args.get('min_exprs'))
-    if 'sort_col' in request.args:
-        sort_col = int(request.args.get('sort_col'))
-    result_elements = list() 
-
+def filter_features( column_wildcard, n, expression_threshold, sort_col, thr):
     some_results = results.filter(regex=re.escape(column_wildcard)+'|^name$')[results['Average (quantile normalized)']>expression_threshold]
     selected_column = some_results.columns[np.abs(sort_col)]
     some_results = some_results.sort_values(selected_column, ascending=n>0)
@@ -472,8 +399,40 @@ def feature_index( column_wildcard ):
 
     some_results['Gene Name'] = [c.replace('@',',').split(',')[1] for c in some_results.name ]
     some_results.columns = [c.replace('_', ' ') for c in some_results.columns] 
+
+    return some_results
+
+
+@app.route('/top_features/<column_wildcard>.csv', methods=['GET'] )
+def feature_index_csv( column_wildcard ):
+    (n, expression_threshold, sort_col, thr) = get_top_list_args( request.args, expression_threshold=0, sort_col=2 ) 
+    some_results = filter_genes_from_features(column_wildcard, n, expression_threshold, sort_col, thr)
+    return return_csv(some_results)
+
+
+@app.route('/top_features/<column_wildcard>', methods=['GET'] )
+def feature_index( column_wildcard ):
+    corr_type = 'feature'
+    usage = 'Example Usage: top_features/T1T3?n=10&min_exprs=100&sort_col=1'
+
+    (n, expression_threshold, sort_col, thr) = get_top_list_args( request.args, expression_threshold=0, sort_col=2 ) 
+    some_results = filter_features(column_wildcard, n, expression_threshold, sort_col, thr)
     selected_column = some_results.columns[sort_col]
 
+
+    # expression_threshold=0
+    # sort_col = 2
+    # if 'n' in request.args:
+    #     n = int(request.args.get('n'))
+    # else: 
+    #     n=results.shape[0]
+    #     print( n )
+    # if 'min_exprs' in request.args:
+    #     expression_threshold = int(request.args.get('min_exprs'))
+    # if 'sort_col' in request.args:
+    #     sort_col = int(request.args.get('sort_col'))
+
+    result_elements = list() 
 
     gene_set_for_search = '['+''.join( ["{'gene':'"+c+"'}," for c in some_results['Gene Name']] )+']'
     
@@ -498,6 +457,9 @@ def feature_index( column_wildcard ):
     export_all_link = '<a href="../export_list/'+export_all_label+'.txt?list='+export_all_data+'">Export this list</a>' 
     export_link_notes = 'This will return a .txt with the features on this page.' 
 
+    export_csv_link = '<a href="/top_features/'+column_wildcard+'.csv?'+str(request.query_string, 'utf-8')+'">Export table as csv.</a>' 
+    export_csv_notes = 'Download a .csv file with the tabular data on this page.' 
+
     # convert gene names to links. 
     some_results['Gene Name'] = ["<a href=\"/results/"+c+"\">"+c+"</a>" for c in some_results['Gene Name'] ]
     some_results['name'] = ["<a href=\"/scatterize_feature/"+c+"\">"+c+"</a>" for c in some_results['name'] ]
@@ -516,6 +478,8 @@ def feature_index( column_wildcard ):
     result_elements.append( {'title': 'Enrichr feature list', 'notes': enrichr_link_notes, 'content': Markup(enrichr_all_link) } )
     result_elements.append( {'title': 'David feature list', 'notes': david_link_notes, 'content': Markup(david_all_link) } )
     result_elements.append( {'title': 'Export feature list', 'notes': export_link_notes, 'content': Markup(export_all_link) } )
+    result_elements.append( {'title': 'Export table as .csv', 'notes': export_csv_notes, 'content': Markup(export_csv_link) } )
+
     this_title = selected_column
 
     return render_template('top_list.html', **locals())
@@ -605,367 +569,12 @@ def scatterize_feature( feature_of_interest ):
     return redirect( url+'#x='+str(AT_idx)+'&y=1&n='+nus_idx)
 
 
-@app.route('/plot_features/<gene_of_interest>.png')
-#@auto.doc()
-def plot_feature_k(gene_of_interest):
-    column_regex=','+gene_of_interest+'@'
-    these_results = np.empty([d.filter(regex=column_regex).shape[1],2])
-    for i,c in enumerate(d.filter(regex=column_regex).columns):
-        x=c
-        varlist='^'+x+'$'
-
-        tmp = d.filter(regex=varlist).dropna()
-        these_results[i,0] = tmp.mean()
-        these_results[i,1] = tmp.std()
-
-    these_results = pd.DataFrame(these_results, columns=['average_exprs', 'std_exprs'])
-    these_results.index = d.filter(regex=column_regex).columns
-
-    fig = plt.figure(figsize=(18, 3), facecolor='white')
-    ax = fig.add_subplot(111, axisbg='w')
-
-    max_out_colormap=np.ceil(max(these_results['average_exprs']))
-    min_out_colormap=np.floor(min(these_results['average_exprs']))
-    my_cmap = cm.get_cmap('BuPu') # or any other one such as PiYG
-    norm = colors.Normalize(min_out_colormap, max_out_colormap) # the color maps work for [0, 1]
-
-    fig_start = None
-    fig_end = None
-    for feature in d.filter(regex=column_regex).columns:
-        amt = these_results.ix[these_results.index==feature]['average_exprs'].values[0]
-
-        p = re.split(r'[,@\:\=\-\_]', feature)   
-
-        gene_name = p[2]
-        feature_type = p[3]
-        coords = [int(coord) for coord in p[5:len(p)] ]
-        start = 1.0*coords[0]
-        end = 1.0*coords[-1]
-        middle = start+(end-start)/2.0
-
-        this_color = (0.0,0.0,0.0) # returns an rgba value
-
-        # PLOT JUNCTION
-        if feature_type[1:] == 'JXN':
-            for c_num,c in enumerate(coords[:-1]):
-                ax.annotate("", xy=(c, 20.), xytext=(coords[c_num+1], 20.), textcoords='data',
-                    arrowprops=dict(arrowstyle="<->", connectionstyle="angle,angleA=135,angleB=45,rad=0.0",
-                    ec=this_color ) )
-
-        # PLOT EXON
-        elif feature_type == 'EXON':
-            exon = patches.Rectangle((start,-10), end-start, 20, facecolor=this_color, ls='solid', edgecolor='k', linewidth=0.5 )
-            ax.add_patch(exon)
-
-        # PLOT INTRON
-        elif feature_type == 'ITRN':
-            intron = patches.Rectangle((start,-2.5), end-start, 5, color=this_color)
-            ax.add_patch(intron)
-
-        if fig_start:
-            fig_start = min(start, fig_start)
-        else:
-            fig_start = start
-
-        if fig_end:
-            fig_end = max(end, fig_end)
-        else:
-            fig_end = end
-
-    plt.title(gene_of_interest+' (length='+str(fig_end-fig_start)+')', fontsize=20, fontstyle='italic', loc='left')
-
-    plt.xlim([fig_start, fig_end])
-    x_formatter = ticker.ScalarFormatter(useOffset=False)
-    ax.xaxis.set_major_formatter(x_formatter)
-
-    plt.ylim([-100, 100]) #,.1*fig_end-fig_start])
-    ax.axes.get_yaxis().set_visible(False)
-
-    cmmapable = cm.ScalarMappable(norm, my_cmap)
-    cmmapable.set_array(range(int(min_out_colormap),int(max_out_colormap)))
-    cbar = plt.colorbar(cmmapable)
-    cbar.set_label('feature expression amount', rotation=270, labelpad=11)
-
-    canvas=FigureCanvas(fig)
-    plt.tight_layout()
-    png_output = StringIO()
-    canvas.print_png(png_output)
-    response=make_response(png_output.getvalue())
-    response.headers['Content-Type'] = 'image/png'
-    return response
-
-
-
-@app.route('/plot_features_AT/<gene_of_interest>.png')
-def plot_features_AT(gene_of_interest):
-    # show the gene
-    column_regex=','+gene_of_interest+'@'
-    # print column_regex
-    these_results = results
-    these_results.index = these_results['name']
-    these_results = these_results.transpose()
-    these_results = these_results.filter(regex=column_regex )
-
-    some_results = these_results.transpose().filter(regex='^Anxious Temperament \(mean\)')
-    # print these_results.transpose()['Anxious_Temperament_Time1TimeOD_mean']
-
-
-    fig = plt.figure(figsize=(18, 3), facecolor='white')
-    ax = fig.add_subplot(111, axisbg='w')
-
-    max_out_colormap=4
-    my_cmap = cm.get_cmap('RdBu') # or any other one such as PiYG
-    norm = colors.Normalize(-1*max_out_colormap, max_out_colormap) # the color maps work for [0, 1]
-
-
-    fig_start = None
-    fig_end = None
-    for feature in d.filter(regex=column_regex).columns:
-        t_value = some_results.ix[some_results.index==feature].values[0,0]
-        p_value = some_results.ix[some_results.index==feature].values[0,1]
-
-        p = re.split(r'[,@\:\=\-\_]', feature)   
-
-        gene_name = p[2]
-        feature_type = p[3]
-        coords = [int(coord) for coord in p[5:len(p)] ]
-        start = 1.0*coords[0]
-        end = 1.0*coords[-1]
-        middle = start+(end-start)/2.0
-
-    #     print gene_name, feature_type, t_value, start, end, coords
-
-        rank_t = max( min(t_value, max_out_colormap), -1*max_out_colormap)
-        this_color = my_cmap(norm(rank_t*-1)) # returns an rgba value
-    #     print this_color
-
-        # PLOT JUNCTION
-        if feature_type[1:] == 'JXN':
-            for c_num,c in enumerate(coords[:-1]):
-                ax.annotate("", xy=(c, 20.), xytext=(coords[c_num+1], 20.), textcoords='data',
-                    arrowprops=dict(arrowstyle="<->", connectionstyle="angle,angleA=135,angleB=45,rad=0.0",
-                    ec=this_color ) )
-            if p_value<.05:
-                ax.annotate(round(t_value,2),xy=(start, 40.), xytext=(middle, 40.) )
-
-        # PLOT EXON
-        elif feature_type == 'EXON':
-            exon = patches.Rectangle((start,-10), end-start, 20, color=this_color )
-            ax.add_patch(exon)
-            if p_value<.05:
-                ax.annotate(round(t_value,2),
-                    xy=(start, 12.), xytext=(middle, 12.), fontsize=20 )
-
-        # PLOT INTRON
-        elif feature_type == 'ITRN':
-            intron = patches.Rectangle((start,-2.5), end-start, 5, color=this_color)
-            ax.add_patch(intron)
-            if p_value<.05:
-                ax.annotate(round(t_value,2),
-                    xy=(start, -20.0), xytext=(middle, -20.0))
-
-        if fig_start:
-            fig_start = min(start, fig_start)
-        else:
-            fig_start = start
-
-        if fig_end:
-            fig_end = max(end, fig_end)
-        else:
-            fig_end = end
-
-
-
-    plt.title(gene_of_interest+' (length='+str(fig_end-fig_start)+')', fontsize=20, fontstyle='italic', loc='left')
-
-    plt.xlim([fig_start, fig_end])
-    x_formatter = ticker.ScalarFormatter(useOffset=False)
-    ax.xaxis.set_major_formatter(x_formatter)
-
-    plt.ylim([-100, 100]) #,.1*fig_end-fig_start])
-    ax.axes.get_yaxis().set_visible(False)
-
-    cmmapable = cm.ScalarMappable(norm, my_cmap)
-    cmmapable.set_array(range(-1*max_out_colormap,max_out_colormap))
-    cbar = plt.colorbar(cmmapable)
-    cbar.set_label('feature t-value', rotation=270, labelpad=11)
-
-
-    # plt.savefig(gene_of_interest+'.png')
-
-    canvas=FigureCanvas(fig)
-    plt.tight_layout()
-    png_output = StringIO()
-    canvas.print_png(png_output)
-    response=make_response(png_output.getvalue())
-    response.headers['Content-Type'] = 'image/png'
-    return response
-
-
-@app.route('/plot_feature_scatters/<feature_of_interest>.png')
-def plot_feature_scatters( feature_of_interest, drop_x_greaterthan=None, drop_x_lessthan=None, outfile=None, rank=None ):
-    x = feature_of_interest
-    if drop_x_greaterthan:
-        this_d=alld[ alld[x]<drop_x_greaterthan]
-    elif drop_x_lessthan:
-        this_d=alld[ alld[x]>drop_x_lessthan]
-    else:
-        this_d = alld
-        
-    if rank:
-        this_d = this_d.rank()
-        
-    f, axarr = plt.subplots(3,3)
-#     f.set_size_inches(18.5,10.5)
-    f.set_size_inches(11,11)
-    f.set_facecolor('white')
-
-    y='Freezing_duration_Time1'
-    ax = sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[0,0])
-    ax.set_xlabel(x.replace(',','\n').replace(':COORDS=','\n'))
-    y='Cooing_frequency_Time1'
-    ax = sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[0,1])
-    ax.set_xlabel(x.replace(',','\n').replace(':COORDS=','\n'))
-    y='Cortisol_levels_Time1'
-    ax = sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[0,2])
-    ax.set_xlabel(x.replace(',','\n').replace(':COORDS=','\n'))
-
-    
-    y='Freezing_duration_Time2'
-    ax = sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[1,0])
-    ax.set_xlabel(x.replace(',','\n').replace(':COORDS=','\n'))
-    y='Cooing_frequency_Time2'
-    ax = sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[1,1])
-    ax.set_xlabel(x.replace(',','\n').replace(':COORDS=','\n'))
-    y='Cortisol_levels_Time1'
-    ax = sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[1,2])
-    ax.set_xlabel(x.replace(',','\n').replace(':COORDS=','\n'))
-
-    y='Anxious_Temperament_Time1Time2_mean'
-    ax = sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[2,0])
-    ax.set_xlabel(x.replace(',','\n').replace(':COORDS=','\n'))
-    y='AnxTemp_mean_T1T3'
-    ax = sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[2,1])
-    ax.set_xlabel(x.replace(',','\n').replace(':COORDS=','\n'))
-    y='Anxious_Temperament_Time1ToD_clust_pos_23'
-    ax = sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[2,2])
-    ax.set_xlabel(x.replace(',','\n').replace(':COORDS=','\n'))
-    
-    axarr[2,2].set_ylim([np.min(this_d[y]),np.max(this_d[y])])
-
-    canvas=FigureCanvas(f)
-    plt.tight_layout()
-    png_output = StringIO()
-    canvas.print_png(png_output)
-    response=make_response(png_output.getvalue())
-    response.headers['Content-Type'] = 'image/png'
-    return response
-
 
 @app.route('/feature_list_<gene_of_interest>')
 def feature_list(gene_of_interest):
     column_regex=','+gene_of_interest+'@'
     return '%s' % d.filter(regex=column_regex).columns.values
 
-@app.route('/plot_genePET_scatters/<gene_of_interest>.png')
-def plot_genePET_scatters( gene_of_interest, drop_x_greaterthan=None, drop_x_lessthan=None, outfile=None, rank=None ):
-    x = gene_of_interest
-    if drop_x_greaterthan:
-        this_d=gened[ gened[x]<drop_x_greaterthan]
-    elif drop_x_lessthan:
-        this_d=gened[ gened[x]>drop_x_lessthan]
-    else:
-        this_d = gened
-        
-    if rank:
-        this_d = this_d.rank()
-        
-    f, axarr = plt.subplots(3,3)
-#     f.set_size_inches(18.5,10.5)
-    f.set_size_inches(11,11)
-    f.set_facecolor('white')
-
-    y='Anxious_Temperament_Time1ToD_clust_pos_23'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[0,0])
-    y='Anxious_Temperament_Time1ToD_clust_pos_15'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[0,1])
-    y='Anxious_Temperament_Time1ToD_clust_pos_16'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[0,2])
-
-    
-    y='Anxious_Temperament_Time1ToD_clust_pos_8'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[1,0])
-    y='Anxious_Temperament_Time1ToD_clust_pos_9'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[1,1])
-    y='Anxious_Temperament_Time1ToD_clust_pos_7'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[1,2])
-
-    y='Anxious_Temperament_Time1ToD_clust_pos_1'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[2,0])
-    y='Anxious_Temperament_Time1ToD_clust_pos_2'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[2,1])
-    y='Anxious_Temperament_Time1ToD_clust_pos_3'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[2,2])
-    
-    axarr[2,2].set_ylim([np.min(this_d[y]),np.max(this_d[y])])
-    
-    canvas=FigureCanvas(f)
-    plt.tight_layout()
-    png_output = StringIO()
-    canvas.print_png(png_output)
-    response=make_response(png_output.getvalue())
-    response.headers['Content-Type'] = 'image/png'
-    return response
-
-
-@app.route('/plot_gene_scatters/<gene_of_interest>.png')
-#@auto.doc()
-def plot_gene_scatters( gene_of_interest, drop_x_greaterthan=None, drop_x_lessthan=None, outfile=None, rank=None ):
-    x = gene_of_interest
-    if drop_x_greaterthan:
-        this_d=gened[ gened[x]<drop_x_greaterthan]
-    elif drop_x_lessthan:
-        this_d=gened[ gened[x]>drop_x_lessthan]
-    else:
-        this_d = gened
-        
-    if rank:
-        this_d = this_d.rank()
-        
-    f, axarr = plt.subplots(3,3)
-#     f.set_size_inches(18.5,10.5)
-    f.set_size_inches(11,11)
-    f.set_facecolor('white')
-
-    y='Freezing_duration_Time1'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[0,0])
-    y='Cooing_frequency_Time1'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[0,1])
-    y='Cortisol_levels_Time1'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[0,2])
-
-    
-    y='Freezing_duration_Time2'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[1,0])
-    y='Cooing_frequency_Time2'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[1,1])
-    y='Cortisol_levels_Time1'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[1,2])
-
-    y='Anxious_Temperament_Time1Time2_mean'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[2,0])
-    y='AnxTemp_mean_T1T3'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[2,1])
-    y='ATPfcRCONN_robust'
-    sns.regplot(x,y,this_d.filter([x,y]).dropna(), ax=axarr[2,2])
-
-    canvas=FigureCanvas(f)
-    plt.tight_layout()
-    png_output = StringIO()
-    canvas.print_png(png_output)
-    response=make_response(png_output.getvalue())
-    response.headers['Content-Type'] = 'image/png'
-    return response
 
 
 def format_t_p_table(df):

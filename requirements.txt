@@ -1,0 +1,7 @@
+Werkzeug==0.14.1
+numpy==1.14.3
+gspread==3.0.0
+Flask==1.0.2
+requests==2.18.4
+pandas==0.23.0
+Markdown==2.6.11
